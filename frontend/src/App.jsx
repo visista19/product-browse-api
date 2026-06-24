@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Strip any trailing slash(es) so a VITE_API_URL like "https://api.example.com/"
+// doesn't produce a double-slash request ("...com//products") that 404s.
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
 const CATEGORIES = ['all', 'electronics', 'books', 'toys', 'home', 'sports', 'beauty'];
 const PAGE_SIZE = 20;
 
