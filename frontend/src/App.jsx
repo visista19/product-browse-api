@@ -14,6 +14,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [addCount, setAddCount] = useState(50);
 
   // Track ids already shown so we can visibly prove "no duplicates" across pages.
   const seenIds = useRef(new Set());
@@ -70,13 +71,15 @@ export default function App() {
     if (cursor && !loading) fetchPage(category, cursor, false);
   };
 
-  const addFifty = async () => {
+  const addProducts = async () => {
     setNotice(null);
+    // Clamp to the backend's accepted range (1..1000); fall back to 50 if blank.
+    const count = Math.max(1, Math.min(1000, parseInt(addCount, 10) || 50));
     try {
       const res = await fetch(`${API_URL}/admin/seed-batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ count: 50 }),
+        body: JSON.stringify({ count }),
       });
       const json = await res.json();
       setNotice(
@@ -92,10 +95,6 @@ export default function App() {
   return (
     <div className="wrap">
       <h1>Product Browser</h1>
-      <p className="sub">
-        Keyset (cursor) pagination over ~200k products · newest first ·{' '}
-        <code>{items.length}</code> loaded
-      </p>
 
       <div className="controls">
         <label>
@@ -108,7 +107,19 @@ export default function App() {
             ))}
           </select>
         </label>
-        <button onClick={addFifty}>+ Add 50 products (consistency demo)</button>
+        <label>
+          Add{' '}
+          <input
+            type="number"
+            min="1"
+            max="1000"
+            value={addCount}
+            onChange={(e) => setAddCount(e.target.value)}
+            style={{ width: 70 }}
+          />{' '}
+          products
+        </label>
+        <button onClick={addProducts}>+ Add (consistency demo)</button>
       </div>
 
       {notice && <div className="notice">{notice}</div>}
